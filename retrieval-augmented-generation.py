@@ -5,11 +5,6 @@ from langchain.chains import RetrievalQA
 from langchain.llms import OpenAI
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
-# If using a .env file, uncomment the next line
-# from dotenv import load_dotenv
-
-# If using a .env file, load environment variables
-# load_dotenv()
 
 # Retrieve environment variables for sensitive information
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -73,10 +68,13 @@ def perform_question_answering(query):
 
     return docs["result"], docs['source_documents']
 
-# Example usage of the perform_question_answering function
-try:
-    answer, sources = perform_question_answering("Does MongoDB Atlas offer auditing?")
-    print("Answer:", answer)
-    print("Source Documents:", sources)
-except Exception as e:
-    print(f"An error occurred: {e}")
+if __name__ == "__main__":
+    # Example usage of the perform_question_answering function
+    try:
+        question = "Does MongoDB Atlas offer auditing?"
+        answer, sources = perform_question_answering(question)
+        print(f"Question: {question}")
+        print("Answer:", answer)
+        print("Source Documents:", sources)
+    except Exception as e:
+        print(f"An error occurred: {e}")
