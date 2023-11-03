@@ -1,10 +1,15 @@
 import os
 from pymongo import MongoClient
 from langchain.vectorstores import MongoDBAtlasVectorSearch
-from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from langchain.llms import OpenAI
 from langchain.embeddings import OpenAIEmbeddings
+from langchain.prompts import PromptTemplate
+# If using a .env file, uncomment the next line
+# from dotenv import load_dotenv
+
+# If using a .env file, load environment variables
+# load_dotenv()
 
 # Retrieve environment variables for sensitive information
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -42,10 +47,7 @@ def perform_question_answering(query):
     # Setup the vector search as a retriever for finding similar documents
     qa_retriever = vector_search.as_retriever(
         search_type="similarity",
-        search_kwargs={
-            "k": 100,
-            "post_filter_pipeline": [{"$limit": 1}]
-        }
+        search_kwargs={"k": 100, "post_filter_pipeline": [{"$limit": 1}]}
     )
 
     prompt_template = """
@@ -61,7 +63,7 @@ def perform_question_answering(query):
 
     qa = RetrievalQA.from_chain_type(
         llm=OpenAI(max_tokens=100),
-        chain_type="retrieval_qa",  # Assuming 'retrieval_qa' is a valid chain type
+        chain_type="stuff",
         retriever=qa_retriever,
         return_source_documents=True,
         chain_type_kwargs={"prompt": PROMPT}
@@ -72,11 +74,9 @@ def perform_question_answering(query):
     return docs["result"], docs['source_documents']
 
 # Example usage of the perform_question_answering function
-if __name__ == "__main__":
-    try:
-        query = "Does MongoDB Atlas offer auditing?"
-        answer, sources = perform_question_answering(query)
-        print("Answer:", answer)
-        print("Source Documents:", sources)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+try:
+    answer, sources = perform_question_answering("Does MongoDB Atlas offer auditing?")
+    print("Answer:", answer)
+    print("Source Documents:", sources)
+except Exception as e:
+    print(f"An error occurred: {e}")
